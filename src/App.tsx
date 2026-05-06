@@ -288,18 +288,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </button>
 
         <nav className="flex flex-col gap-6 w-full items-center px-0">
-          <button 
-            onClick={() => setIsAboutOpen(true)}
-            className="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center hover:bg-slate-700 transition-all group overflow-hidden"
-            title="OptiChart Details"
-          >
-            <img 
-              src="/optichart.png" 
-              alt="" 
-              className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" 
-              referrerPolicy="no-referrer"
-            />
-          </button>
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
             return (

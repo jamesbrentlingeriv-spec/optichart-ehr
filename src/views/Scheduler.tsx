@@ -563,30 +563,56 @@ const AppointmentModal = ({ slot, appt, onClose, onSave, onDelete, date, existin
                             <User size={18} />
                          </div>
 
-                         <AnimatePresence>
-                           {patientResults.length > 0 && (
-                             <motion.div 
-                               initial={{ opacity: 0, y: -10 }}
-                               animate={{ opacity: 1, y: 0 }}
-                               exit={{ opacity: 0, y: -10 }}
-                               className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[100] overflow-hidden"
-                             >
-                               {patientResults.map(p => (
-                                 <button 
-                                   key={p.id}
-                                   type="button"
-                                   onClick={() => selectPatient(p)}
-                                   className="w-full text-left px-6 py-4 hover:bg-slate-50 border-b border-slate-50 last:border-none transition"
-                                 >
-                                   <p className="font-black uppercase text-xs text-slate-800">{p.firstName} {p.lastName}</p>
-                                   <p className="text-[10px] font-bold text-slate-400">DOB: {p.dob} • {p.phone}</p>
-                                 </button>
-                               ))}
-                             </motion.div>
-                           )}
-                         </AnimatePresence>
-                      </div>
-                   </div>
+                  <AnimatePresence>
+                    {patientResults.length > 0 ? (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[100] overflow-hidden"
+                      >
+                        {patientResults.map(p => (
+                          <button 
+                            key={p.id}
+                            type="button"
+                            onClick={() => selectPatient(p)}
+                            className="w-full text-left px-6 py-4 hover:bg-slate-50 border-b border-slate-50 last:border-none transition"
+                          >
+                            <p className="font-black uppercase text-xs text-slate-800">{p.firstName} {p.lastName}</p>
+                            <p className="text-[10px] font-bold text-slate-400">DOB: {p.dob} • {p.phone}</p>
+                          </button>
+                        ))}
+                      </motion.div>
+                    ) : formData.patientName.length > 2 && !formData.patientId && formData.type !== 'block_off' ? (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[100] overflow-hidden"
+                      >
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setIsNewPatient(true);
+                            setPatientResults([]);
+                          }}
+                          className="w-full text-left px-6 py-5 hover:bg-indigo-50 border-b border-slate-50 transition group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition">
+                              <Plus size={18} className="text-indigo-600" />
+                            </div>
+                            <div>
+                              <p className="font-black uppercase text-xs text-indigo-600">Add New Patient</p>
+                              <p className="text-[10px] font-bold text-slate-400 mt-0.5">"{formData.patientName}" not found in system</p>
+                            </div>
+                          </div>
+                        </button>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                       </div>
+                    </div>
 
                    <div className="grid grid-cols-2 gap-4">
                      <div className="space-y-1">
