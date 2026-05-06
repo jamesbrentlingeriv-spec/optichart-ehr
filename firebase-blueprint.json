@@ -1,0 +1,171 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user with role-based access",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "doctor", "technician", "frontdesk"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Patient": {
+      "title": "Patient",
+      "description": "Comprehensive patient medical and ocular records",
+      "type": "object",
+      "properties": {
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "dob": { "type": "string", "format": "date" },
+        "gender": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "insuranceProvider": { "type": "string" },
+        "insuranceId": { "type": "string" },
+        "address": { "type": "string" },
+        "familyHistory": { "type": "string" },
+        "familyOcularHistory": { "type": "string" },
+        "patientOcularHistory": { "type": "string" },
+        "patientHealthHistory": { "type": "string" },
+        "dilationConsent": { "type": "boolean" },
+        "diabetes": {
+          "type": "object",
+          "properties": {
+            "hasDiabetes": { "type": "boolean" },
+            "type": { "type": "string", "enum": ["Type 1", "Type 2", "Gestational", "Pre-Diabetes"] },
+            "lastA1C": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["firstName", "lastName", "dob"]
+    },
+    "Exam": {
+      "title": "Exam",
+      "description": "Detailed clinical ophthalmic examination",
+      "type": "object",
+      "properties": {
+        "patientId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "reasonForVisit": { "type": "string" },
+        "presentingRx": {
+          "type": "object",
+          "properties": {
+            "od": { "type": "object" },
+            "os": { "type": "object" }
+          }
+        },
+        "autorefraction": {
+          "type": "object",
+          "properties": {
+            "od": { "type": "object" },
+            "os": { "type": "object" }
+          }
+        },
+        "keratometry": {
+          "type": "object",
+          "properties": {
+            "od": { "type": "object" },
+            "os": { "type": "object" }
+          }
+        },
+        "subjectiveRefraction": {
+          "type": "object",
+          "properties": {
+            "od": { "type": "object" },
+            "os": { "type": "object" }
+          }
+        },
+        "finalRx": {
+          "type": "object",
+          "properties": {
+            "spectacle": { "type": "object" },
+            "contactLens": { "type": "object" },
+            "alternate": { "type": "object" }
+          }
+        },
+        "iop": {
+          "type": "object",
+          "properties": {
+            "od": { "type": "number" },
+            "os": { "type": "number" },
+            "method": { "type": "string" }
+          }
+        },
+        "findings": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["patientId", "doctorId", "date"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Eyewear or Contact Lens order",
+      "type": "object",
+      "properties": {
+        "jobNum": { "type": "number" },
+        "patientName": { "type": "string" },
+        "patientId": { "type": "string" },
+        "type": { "type": "string", "enum": ["eyewear", "contact_lens", "Glasses Order"] },
+        "details": { "type": "object" },
+        "billing": { "type": "object" },
+        "rx": { "type": "object" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "status"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Scheduled clinical appointment or block-off",
+      "type": "object",
+      "properties": {
+        "patientName": { "type": "string" },
+        "patientId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "type": { "type": "string" },
+        "duration": { "type": "number" },
+        "notes": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "time", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Application users and roles"
+    },
+    "/patients/{patientId}": {
+      "schema": "Patient",
+      "description": "Master patient records"
+    },
+    "/patients/{patientId}/exams/{examId}": {
+      "schema": "Exam",
+      "description": "Historical exams for a patient"
+    },
+    "/patients/{patientId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Eyewear and contact lens orders"
+    },
+    "/patients/{patientId}/contactOrders/{orderId}": {
+      "schema": "Order",
+      "description": "Historical contact lens orders for a patient"
+    },
+    "/contactOrderQueue/{orderId}": {
+      "schema": "Order",
+      "description": "Global queue of contact lens orders awaiting fulfillment"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Global clinical appointments"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "OptiChart EHR",
+  "description": "A modern, role-based Optometry Management and EHR system with comprehensive exam recording, RX ordering, and VisionWeb integration.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

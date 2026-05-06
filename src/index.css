@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --color-theme-bg: #f8fafc;
+  --color-theme-card: #ffffff;
+  --color-theme-text: #1e293b;
+  --color-theme-accent: #6366f1;
+  --color-theme-border: #e2e8f0;
+}
+
+:root {
+  --theme-bg: #f8fafc;
+  --theme-card: #ffffff;
+  --theme-text: #1e293b;
+  --theme-accent: #6366f1;
+  --theme-border: #e2e8f0;
+}
+
+body {
+  @apply bg-theme-bg text-theme-text;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

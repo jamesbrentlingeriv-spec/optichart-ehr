@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHILD POLY WAIVER | Pal Optical</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0.75in;
+            max-width: 8.5in;
+            font-size: 1.05em;
+            line-height: 1.4;
+        }
+
+        .waiver-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #000;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+
+        .waiver-header {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .waiver-text {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-left: 5px solid #000;
+        }
+
+        .signature-section {
+            margin-top: 30px;
+        }
+
+        .signature-canvas-container {
+            border: 2px solid #000;
+            background: #fff;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        #signatureCanvas {
+            width: 100%;
+            height: 100px;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .signature-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sig-btn {
+            padding: 10px 20px;
+            border: 2px solid #000;
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .sig-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .sig-btn.primary {
+            background: #000;
+            color: #fff;
+        }
+
+        .sig-btn.primary:hover {
+            background: #333;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            border-top: 2px solid #000;
+            padding-top: 5px;
+            margin-top: 10px;
+        }
+
+        @page {
+            size: letter;
+            margin: 0.75in;
+        }
+
+        @media print {
+            body {
+                padding: 0.75in;
+            }
+
+            .signature-buttons {
+                display: none !important;
+            }
+
+            .signature-canvas-container {
+                border: 1px solid #000;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="waiver-title">PATIENT DISCLOSURE &amp; WAIVER FORM</div>
+    <div class="waiver-header">
+        Waiver: <strong>CHILD POLY WAIVER</strong> | Date: <span id="waiver-date"></span>
+        <br>Patient Name: <strong id="patient-name">__________________</strong>
+    </div>
+    <div class="waiver-text">
+        <p><b>CHILD POLY WAIVER:</b> I have been cautioned by my optician that my child should have polycarbonate lenses
+            due to poly being extremely impact resistant and shatter resistant, thereby safer for my childs glasses. I
+            am choosing to not get poly and will not hold Pal Optical responsible should my childs lenses shatter or
+            break and injure them.</p>
+    </div>
+    <div class="signature-section">
+        <div style="font-weight: bold; margin-bottom: 5px;">Patient Signature:</div>
+        <div class="signature-canvas-container">
+            <canvas id="signatureCanvas"></canvas>
+        </div>
+        <div class="signature-buttons no-print">
+            <button class="sig-btn" onclick="clearSignature()">Clear Signature</button>
+            <button class="sig-btn primary" onclick="printDocument()">Print Document</button>
+        </div>
+        <div class="footer-row">
+            <span>Patient Signature (Electronically Captured)</span>
+            <span>Date: <span id="waiver-date-footer"></span></span>
+        </div>
+    </div>
+    <script>
+        var date = new Date().toLocaleDateString();
+        document.getElementById('waiver-date').textContent = date;
+        document.getElementById('waiver-date-footer').textContent = date;
+
+        // Initialize signature canvas
+        var canvas = document.getElementById('signatureCanvas');
+        var ctx = canvas.getContext('2d');
+        var isDrawing = false;
+        var lastX = 0;
+        var lastY = 0;
+
+        // Set canvas size
+        function resizeCanvas() {
+            var container = canvas.parentElement;
+            canvas.width = container.offsetWidth;
+            canvas.height = 100;
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Drawing functions
+        function startDrawing(e) {
+            isDrawing = true;
+            var rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            var rect = canvas.getBoundingClientRect();
+            var currentX = e.clientX - rect.left;
+            var currentY = e.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            lastX = currentX;
+            lastY = currentY;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch events
+        canvas.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchend', function (e) {
+            var mouseEvent = new MouseEvent('mouseup', {});
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        // Clear signature
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Print document
+        function printDocument() {
+            window.print();
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const pName = urlParams.get('patientName');
+        if (pName) {
+            document.getElementById('patient-name').textContent = pName;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      // get() bypasses security rules, so we can use it to fetch roles
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(roles) {
+      return isSignedIn() && getUserData().role in roles;
+    }
+
+    function isAdmin() {
+      return hasRole(['admin']) || request.auth.token.email in ['jamesbrentlingeriv@gmail.com', 'james@clinic.com'];
+    }
+
+    function isStaff() {
+      return isAdmin() || hasRole(['doctor', 'technician', 'frontdesk']);
+    }
+
+    function isValidId(id) {
+       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- Entity Validation ---
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) 
+        && data.uid == request.auth.uid
+        && data.role in ['admin', 'doctor', 'technician', 'frontdesk']
+        && (data.email is string && data.email.size() <= 200);
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['status', 'type', 'patientId'])
+        && data.status in ['pending', 'ordered', 'received', 'dispensed']
+        && data.type in ['eyewear', 'contact_lens', 'Glasses Order']
+        && isValidId(data.patientId);
+    }
+
+    // --- Rules ---
+
+    match /users/{userId} {
+      // Users can read their own profile, Admins can read all
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // List is restricted to admins
+      allow list: if isAdmin();
+      
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming());
+      
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin()) 
+                    && (isAdmin() || (incoming().role == existing().role && incoming().uid == existing().uid));
+    }
+
+    match /patients/{patientId} {
+      // Staff-only access to master patient records
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidId(patientId);
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+      
+      // Clinical Records
+      match /exams/{examId} {
+        allow read, write: if isStaff();
+      }
+      
+      match /orders/{orderId} {
+        allow read, write: if isStaff();
+      }
+
+      match /contactOrders/{orderId} {
+        allow read: if isStaff();
+        allow create: if isStaff() && isValidOrder(incoming()) && isValidId(orderId);
+        allow update: if isStaff() && isValidOrder(incoming());
+        allow delete: if isAdmin();
+      }
+      
+      match /documents/{docId} {
+        allow read, write: if isStaff();
+      }
+    }
+
+    match /appointments/{appointmentId} {
+      allow read, write: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /contactOrderQueue/{orderId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidOrder(incoming()) && isValidId(orderId);
+      allow update: if isStaff() && isValidOrder(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Collection Group support for global diagnostic imaging view
+    match /{path=**}/documents/{docId} {
+      allow read: if isStaff();
+    }
+  }
+}
