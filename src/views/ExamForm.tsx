@@ -143,8 +143,8 @@ export const ExamForm = ({ patientId, onBack, onSave }: any) => {
     vitals: { bp: { sbp: '', dbp: '', pulse: '', arm: 'Left' }, bmi: { height: '', weight: '', value: '', class: '' } },
     
     va: { 
-      wo: { od: '', os: '', ou: '' }, 
-      with: { od: '', os: '', ou: '' },
+      od: { od: '', os: '', ou: '' }, 
+      os: { od: '', os: '', ou: '' },
       type: 'Old Glasses',
       chart: 'NUMBERS'
     },
@@ -364,7 +364,7 @@ export const ExamForm = ({ patientId, onBack, onSave }: any) => {
                 <div className="grid grid-cols-4 gap-6">
                   <EyeInputGroup 
                     label="Visual Acuity" 
-                    od={formData.va.wo} os={formData.va.with} 
+                    od={formData.va.od} os={formData.va.os} 
                     fields={['od', 'os', 'ou']} 
                     segment="va" 
                     onChange={handleUpdate}
